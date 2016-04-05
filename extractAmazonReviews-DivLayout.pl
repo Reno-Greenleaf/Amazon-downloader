@@ -30,7 +30,7 @@ use  File::Spec;
 my $filename ="";
 my $count = 0;
 
-print "\"count\",\"new-date\",\"model\", \"bed-size\",\"rating\",\"helpful-yes\",\"helpful-total\",\"date\",\"user-id\", \"user-name\",\"title\",\"review\"\n";
+print "\"count\",\"new-date\",\"model\", \"bed-size\",\"rating\",\"helpful-yes\",\"helpful-total\",\"date\", \"amazon-verified-purchase\",\"user-id\", \"user-name\",\"title\",\"review\"\n";
 
 while($filename= shift) {
     if(-f $filename) {
@@ -140,6 +140,12 @@ sub extract {
 			$size = $1;
 		}
 
+		my $verified = "FALSE";
+
+		if ($block =~ /a-text-bold">Verified Purchase<\/span><\/a>/) {
+			$verified = "TRUE";
+		}
+
 		$block =~ m#base review-text">(.*?)</span#gs;
 		my $review = $1;
 		$review =~ s/^\s+|\s+$//g;
@@ -148,7 +154,7 @@ sub extract {
 		$review =~ s/"/'/g;
 
 		if(length($review) > 0) {
-			print "\"$count\",\"$newDate\",\"$model\", \"$size\",\"$rating\",\"$helpfulYes\",\"$helpfulTotal\",\"$date\",\"$userId\", \"$userName\",\"$title\",\"$review\"\n";
+			print "\"$count\",\"$newDate\",\"$model\", \"$size\", \"$rating\",\"$helpfulYes\",\"$helpfulTotal\",\"$date\", $verified,\"$userId\", \"$userName\",\"$title\",\"$review\"\n";
 		}
 		++$count;
     }
