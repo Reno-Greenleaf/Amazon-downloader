@@ -30,7 +30,7 @@ use  File::Spec;
 my $filename ="";
 my $count = 0;
 
-print "\"count\",\"new-date\",\"model\",\"rating\",\"helpful-yes\",\"helpful-total\",\"date\",\"user-id\", \"user-name\",\"title\",\"review\"\n";
+print "\"count\",\"new-date\",\"model\", \"bed-size\",\"rating\",\"helpful-yes\",\"helpful-total\",\"date\",\"user-id\", \"user-name\",\"title\",\"review\"\n";
 
 while($filename= shift) {
     if(-f $filename) {
@@ -135,6 +135,10 @@ sub extract {
 			$userName = $2;
 		}
 
+		my $size = "unspecified";
+		if ($block =~ /formatType=current_format">Size: (.*?)<i class/) {
+			$size = $1;
+		}
 
 		$block =~ m#base review-text">(.*?)</span#gs;
 		my $review = $1;
@@ -144,7 +148,7 @@ sub extract {
 		$review =~ s/"/'/g;
 
 		if(length($review) > 0) {
-			print "\"$count\",\"$newDate\",\"$model\",\"$rating\",\"$helpfulYes\",\"$helpfulTotal\",\"$date\",\"$userId\", \"$userName\",\"$title\",\"$review\"\n";
+			print "\"$count\",\"$newDate\",\"$model\", \"$size\",\"$rating\",\"$helpfulYes\",\"$helpfulTotal\",\"$date\",\"$userId\", \"$userName\",\"$title\",\"$review\"\n";
 		}
 		++$count;
     }
