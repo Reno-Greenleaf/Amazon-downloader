@@ -30,6 +30,8 @@ use  File::Spec;
 my $filename ="";
 my $count = 0;
 
+print "\"count\",\"new-date\",\"model\",\"rating\",\"helpful-yes\",\"helpful-total\",\"date\",\"user-id\",\"title\",\"review\"\n";
+
 while($filename= shift) {
     if(-f $filename) {
 	extract($filename);
