@@ -30,7 +30,7 @@ use  File::Spec;
 my $filename ="";
 my $count = 0;
 
-print "\"count\",\"new-date\",\"model\",\"rating\",\"helpful-yes\",\"helpful-total\",\"date\",\"user-id\",\"title\",\"review\"\n";
+print "\"count\",\"new-date\",\"model\",\"rating\",\"helpful-yes\",\"helpful-total\",\"date\",\"user-id\", \"user-name\",\"title\",\"review\"\n";
 
 while($filename= shift) {
     if(-f $filename) {
@@ -128,8 +128,11 @@ sub extract {
 		   $helpfulYes =  ($1, $2)[$1 > $2];
 		}
 		my $userId = "ANONYMOUS";
-		if($block =~ /profile\/(.*?)\//) {
+		my $userName = "-";
+
+		if($block =~ /profile\/(.*?)\/ref=cm_cr_arp_d_pdp\?ie=UTF8">(.*?)<\/a>/) {
 			$userId = $1;
+			$userName = $2;
 		}
 
 
@@ -141,7 +144,7 @@ sub extract {
 		$review =~ s/"/'/g;
 
 		if(length($review) > 0) {
-			print "\"$count\",\"$newDate\",\"$model\",\"$rating\",\"$helpfulYes\",\"$helpfulTotal\",\"$date\",\"$userId\",\"$title\",\"$review\"\n";
+			print "\"$count\",\"$newDate\",\"$model\",\"$rating\",\"$helpfulYes\",\"$helpfulTotal\",\"$date\",\"$userId\", \"$userName\",\"$title\",\"$review\"\n";
 		}
 		++$count;
     }
