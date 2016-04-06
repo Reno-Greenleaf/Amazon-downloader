@@ -39,66 +39,89 @@ my $domain = shift;
 mkdir "amazonreviews/$domain";
 
 my $id = "";
-while($id  = shift) {
+while($id = shift) { # loop over product IDs.
 
-    my $dir = "amazonreviews/$domain/$id";
-    mkdir $dir;
+	my $dir = "amazonreviews/$domain/$id";
+	mkdir $dir;
 
-    my $urlPart1 = "http://www.amazon.".$domain."/product-reviews/";
-    my $urlPart2 = "/?ie=UTF8&showViewpoints=0&pageNumber=";
-    my $urlPart3 = "&sortBy=bySubmissionDateDescending";
+	my $urlPart1 = "http://www.amazon.".$domain."/product-reviews/";
+	my $urlPart2 = "/?ie=UTF8&showViewpoints=0&pageNumber=";
+	my $urlPart3 = "&sortBy=bySubmissionDateDescending";
 
-    my $referer = $urlPart1.$id.$urlPart2."1".$urlPart3;
+	my $referer = $urlPart1.$id.$urlPart2."1".$urlPart3;
 
-    my $page = 1;
+	my $page = 1;
 	my $lastPage = 1;
-    while($page<=$lastPage) {
+
+	while($page<=$lastPage) {
+
+		if ($page == $lastPage && $page == 1) {
+			print "Getting first page of product $id\t";
+		}
+		else {
+			print "Getting page $page/$lastPage of product $id\t";
+		}
 
 		my $url = $urlPart1.$id.$urlPart2.$page.$urlPart3;
-
-		print $url;
 
 		my $request = HTTP::Request->new(GET => $url);
 		$request->referer($referer);
 
 		my $response = $ua->request($request);
-		if($response->is_success) {
-			print " GOTIT\n";
+
+		if(contentObtained($response)) {
+			print "Saving HTML\t";
 			my $content = $response->decoded_content;
 
-			while($content =~ m#cm_cr_pr_btm_link_([0-9]+)#gs ) {
+			while($content =~ m#cm_cr_arp_d_paging_btm_(\d+)#gs ) {
 				my $val = $1+0;
+
 				if($val>$lastPage) {
 					$lastPage = $val;
 				}
+
 			}
-			
+		
 			if(open(CONTENTFILE, ">./$dir/$page")) {
 				binmode(CONTENTFILE, ":utf8");
 				print CONTENTFILE $content;
 				close(CONTENTFILE);
-				print "ok\t$domain\t$id\t$page\t$lastPage\n";
+				print "Saved\n";
 			}
 			else {
-				print "failed\t$domain\t$id\t$page\t$lastPage\n";
+				print "Can't save!\n";
 			}
-			
+		
 			if($sleepTime>0) {
 				--$sleepTime;
 			}
 		}
 		else {
-			if($response->code==503) {
-				--$page;
-				++$sleepTime;
-				print " TIMEOUT ".$response->code." retrying (new timeout $sleepTime)\n";
-			}
-			else {
-				print " Downloaded ". ($page-1). " pages for product id $id (end code:".$response->code.")\n";
-				last;
-			}
+			--$page;
+			++$sleepTime;
+			print "Retrying (new timeout $sleepTime)…\n";
 		}
+
 		++$page;
 		sleep($sleepTime);
-    }
+	}
+}
+
+sub contentObtained {
+	my $response = $_[0];
+
+	if ($response->is_success) {
+		my $content = $response->decoded_content;
+
+		if ($content =~ /action="\/errors\/validateCaptcha"/) {
+			print "CAPTCHA!\t";
+		}
+
+		return $content !~ /action="\/errors\/validateCaptcha"/
+	}
+	else {
+		print "Error " . $response->code ."\t";
+		return $response->is_success;
+	}
+
 }
