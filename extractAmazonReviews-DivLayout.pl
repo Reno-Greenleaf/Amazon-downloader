@@ -30,7 +30,7 @@ use  File::Spec;
 my $filename ="";
 my $count = 0;
 
-print "\"count\",\"new-date\",\"model\", \"bed-size\",\"rating\",\"helpful-yes\",\"helpful-total\",\"date\", \"amazon-verified-purchase\",\"user-id\", \"user-name\",\"title\",\"review\"\n";
+print "'count','new-date','model', 'bed-size','rating','helpful-yes','helpful-total', 'date', 'amazon-verified-purchase','user-id', 'user-name','title','review'\n";
 
 while($filename= shift) {
     if(-f $filename) {
@@ -136,7 +136,7 @@ sub extract {
 		}
 
 		my $size = "unspecified";
-		if ($block =~ /formatType=current_format">Size: (.*?)<i class/) {
+		if ($block =~ /formatType=current_format">Size: (.*?)<\/a>/) {
 			$size = $1;
 		}
 
@@ -154,7 +154,7 @@ sub extract {
 		$review =~ s/"/'/g;
 
 		if(length($review) > 0) {
-			print "\"$count\",\"$newDate\",\"$model\", \"$size\", \"$rating\",\"$helpfulYes\",\"$helpfulTotal\",\"$date\", $verified,\"$userId\", \"$userName\",\"$title\",\"$review\"\n";
+			print "'$count','$newDate','$model', '$size', '$rating','$helpfulYes','$helpfulTotal','$date', '$verified', '$userId', '$userName','$title','$review'\n";
 		}
 		++$count;
     }
