@@ -33,40 +33,40 @@ my $count = 0;
 print "'count','new-date','model', 'bed-size','rating','helpful-yes','helpful-total', 'date', 'amazon-verified-purchase','user-id', 'user-name','title','review'\n";
 
 while($filename= shift) {
-    if(-f $filename) {
-	extract($filename);
-    }
-    elsif(-d $filename) {
-	opendir(DIR, $filename) or next;
-	while(my $subfilename = readdir(DIR)) {
-	    extract(File::Spec->catfile($filename,$subfilename));
+	if(-f $filename) {
+		extract($filename);
 	}
-	closedir(DIR);
-    }
+	elsif(-d $filename) {
+		opendir(DIR, $filename) or next;
+		while(my $subfilename = readdir(DIR)) {
+			extract(File::Spec->catfile($filename,$subfilename));
+		}
+		closedir(DIR);
+	}
 }
 
 sub extract {
-    my($filename) = $_[0];
-    open (FILE, "<", $filename) or return;
-    my $whole_file;
-    {
-	local $/;
-	$whole_file = <FILE>;
-    }
-    close(FILE);
+	my($filename) = $_[0];
+	open (FILE, "<", $filename) or return;
+	my $whole_file;
+	{
+		local $/;
+		$whole_file = <FILE>;
+	}
+	close(FILE);
+
+	$whole_file =~ m#product\-reviews/([A-Z0-9]+)/ref\=cm_cr_pr_hist#gs;
+	my $model = $1;
 	
-    $whole_file =~ m#product\-reviews/([A-Z0-9]+)/ref\=cm_cr_pr_hist#gs;
-    my $model = $1;
-    
-    $whole_file =~ m#cm_cr-review_list.*?>(.*?)<div class=\"a-form-actions a-spacing-top-extra-large#gs;
-    $whole_file = $1;
-	
-    while ($whole_file =~ m#a-section review\">(.*?)report-abuse-link#gs) {
+	$whole_file =~ m#cm_cr-review_list.*?>(.*?)<div class=\"a-form-actions a-spacing-top-extra-large#gs;
+	$whole_file = $1;
+
+	while ($whole_file =~ m#a-section review\">(.*?)report-abuse-link#gs) {
 		my $block = $1;
 
 		$block =~ m#star-(.) review-rating#gs;
 		my $rating = $1;
-		
+	
 		$block =~ m#review-title.*?>(.*?)</a>#gs;
 		my $title = $1;
 
@@ -124,12 +124,12 @@ sub extract {
 		my $helpfulTotal = 0;
 		my $helpfulYes = 0;
 		if($block =~ m#review-votes.*?([0-9]+).*?([0-9]+)#) {
-		   $helpfulTotal = ($1, $2)[$1 < $2];
-		   $helpfulYes =  ($1, $2)[$1 > $2];
+			 $helpfulTotal = ($1, $2)[$1 < $2];
+			 $helpfulYes =  ($1, $2)[$1 > $2];
 		}
+
 		my $userId = "ANONYMOUS";
 		my $userName = "-";
-
 		if($block =~ /profile\/(.*?)\/ref=cm_cr_arp_d_pdp\?ie=UTF8">(.*?)<\/a>/) {
 			$userId = $1;
 			$userName = $2;
@@ -141,7 +141,6 @@ sub extract {
 		}
 
 		my $verified = "FALSE";
-
 		if ($block =~ /a-text-bold">Verified Purchase<\/span><\/a>/) {
 			$verified = "TRUE";
 		}
@@ -156,6 +155,7 @@ sub extract {
 		if(length($review) > 0) {
 			print "'$count','$newDate','$model', '$size', '$rating','$helpfulYes','$helpfulTotal','$date', '$verified', '$userId', '$userName','$title','$review'\n";
 		}
+
 		++$count;
-    }
+	}
 }
