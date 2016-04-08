@@ -92,9 +92,13 @@ while($id = shift) { # loop over product IDs.
 				print "Can't save!\n";
 			}
 		
-			if($sleepTime>0) {
-				--$sleepTime;
+			if ($sleepTime > 7) {
+				$sleepTime -= 4;
 			}
+			elsif ($sleepTime > 60) { # too big
+				$sleepTime = 10;
+			}
+
 		}
 		else {
 			--$page;
