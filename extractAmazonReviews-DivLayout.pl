@@ -146,7 +146,7 @@ sub extract {
 		}
 
 		my $size = "unspecified";
-		if ($block =~ /formatType=current_format">Size: (.*?)<\/a>/) {
+		if ($block =~ /formatType=current_format">Size: (.*?)</) {
 			$size = $1;
 		}
 
