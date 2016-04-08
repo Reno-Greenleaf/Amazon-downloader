@@ -30,7 +30,7 @@ use  File::Spec;
 my $filename ="";
 my $count = 0;
 
-print "'count','new-date','model', 'bed-size','rating','helpful-yes','helpful-total', 'date', 'amazon-verified-purchase','user-id', 'user-name','title','review'\n";
+print "'unique-id', 'count', 'product-id', 'new-date', 'model', 'bed-size', 'rating', 'helpful-yes', 'helpful-total', 'date', 'amazon-verified-purchase', 'user-id', 'profile-url', 'user-name', 'title', 'review'\n";
 
 while($filename= shift) {
 	if(-f $filename) {
@@ -54,6 +54,11 @@ sub extract {
 		$whole_file = <FILE>;
 	}
 	close(FILE);
+
+	my $productId = '';
+	if ($whole_file =~ /https:\/\/www.amazon.com\/ask\/questions\/asin\/(.*?)\/create/) { # product id is taken from ask questions form.
+		$productId = $1;
+	}
 
 	$whole_file =~ m#product\-reviews/([A-Z0-9]+)/ref\=cm_cr_pr_hist#gs;
 	my $model = $1;
@@ -135,6 +140,11 @@ sub extract {
 			$userName = $2;
 		}
 
+		my $profileUrl = "unavailable";
+		if ($block =~ /(\/gp\/pdp\/profile\/.*?\/ref=cm_cr_arp_d_pdp\?ie=UTF8)/) {
+			$profileUrl = 'http://amazon.com' . $1; # hardcoded domain, not good, should be changed.
+		}
+
 		my $size = "unspecified";
 		if ($block =~ /formatType=current_format">Size: (.*?)<\/a>/) {
 			$size = $1;
@@ -153,7 +163,8 @@ sub extract {
 		$review =~ s/"/'/g;
 
 		if(length($review) > 0) {
-			print "'$count','$newDate','$model', '$size', '$rating','$helpfulYes','$helpfulTotal','$date', '$verified', '$userId', '$userName','$title','$review'\n";
+			my $uniqueId = $productId . '-' . $count;
+			print "'$uniqueId', '$count', '$productId', '$newDate', '$model', '$size', '$rating','$helpfulYes','$helpfulTotal','$date', '$verified', '$userId', '$profileUrl', '$userName','$title','$review'\n";
 		}
 
 		++$count;
