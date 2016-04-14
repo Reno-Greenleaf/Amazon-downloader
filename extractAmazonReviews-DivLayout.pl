@@ -30,7 +30,7 @@ use  File::Spec;
 my $filename ="";
 my $count = 0;
 
-print "'unique-id', 'count', 'product-id', 'new-date', 'model', 'bed-size', 'rating', 'helpful-yes', 'helpful-total', 'date', 'amazon-verified-purchase', 'user-id', 'profile-url', 'user-name', 'title', 'review'\n";
+print "\"unique-id\", \"count\", \"product-id\", \"new-date\", \"model\", \"bed-size\", \"rating\", \"helpful-yes\", \"helpful-total\", \"date\", \"amazon-verified-purchase\", \"user-id\", \"profile-url\", \"user-name\", \"title\", \"review\"\n";
 
 while($filename= shift) {
 	if(-f $filename) {
@@ -123,7 +123,7 @@ sub extract {
 
 		my $newDate = "XX"; 
 		if($month ne "XX") {
-			$newDate = sprintf ( "$3$month%02d",$2);
+			$newDate = sprintf ( "$month/%02d/$3",$2);
 		}
 
 		my $helpfulTotal = 0;
@@ -148,6 +148,7 @@ sub extract {
 		my $size = "unspecified";
 		if ($block =~ /formatType=current_format">Size: (.*?)</) {
 			$size = $1;
+			$size =~ s/\"/\"\"/g;
 		}
 
 		my $verified = "FALSE";
@@ -164,7 +165,7 @@ sub extract {
 
 		if(length($review) > 0) {
 			my $uniqueId = $productId . '-' . $count;
-			print "'$uniqueId', '$count', '$productId', '$newDate', '$model', '$size', '$rating','$helpfulYes','$helpfulTotal','$date', '$verified', '$userId', '$profileUrl', '$userName','$title','$review'\n";
+			print "\"$uniqueId\", \"$count\", \"$productId\", \"$newDate\", \"$model\", \"$size\", \"$rating\",\"$helpfulYes\",\"$helpfulTotal\",\"$date\", \"$verified\", \"$userId\", \"$profileUrl\", \"$userName\",\"$title\",\"$review\"\n";
 		}
 
 		++$count;
