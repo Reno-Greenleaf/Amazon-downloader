@@ -30,7 +30,7 @@ use  File::Spec;
 my $filename ="";
 my $count = 0;
 
-print "\"unique-id\",\"count\",\"product-id\",\"new-date\",\"model\",\"bed-size\",\"rating\",\"helpful-yes\",\"helpful-total\",\"date\",\"amazon-verified-purchase\",\"user-id\",\"profile-url\",\"user-name\",\"title\",\"review\"\n";
+print "\"product-title\",\"unique-id\",\"count\",\"product-id\",\"new-date\",\"model\",\"bed-size\",\"rating\",\"helpful-yes\",\"helpful-total\",\"date\",\"amazon-verified-purchase\",\"user-id\",\"profile-url\",\"user-name\",\"title\",\"review\"\n";
 
 while($filename= shift) {
 	if(-f $filename) {
@@ -58,6 +58,11 @@ sub extract {
 	my $productId = '';
 	if ($whole_file =~ /https:\/\/www.amazon.com\/ask\/questions\/asin\/(.*?)\/create/) { # product id is taken from ask questions form.
 		$productId = $1;
+	}
+
+	my $productTitle = '';
+	if ($whole_file =~ /<title>Amazon.com: Customer Reviews: (.*?)<\/title>/) {
+		$productTitle = $1;
 	}
 
 	$whole_file =~ m#product\-reviews/([A-Z0-9]+)/ref\=cm_cr_pr_hist#gs;
@@ -165,7 +170,7 @@ sub extract {
 
 		if(length($review) > 0) {
 			my $uniqueId = $productId . '-' . $count;
-			print "\"$uniqueId\",\"$count\",\"$productId\",\"$newDate\",\"$model\",\"$size\",\"$rating\",\"$helpfulYes\",\"$helpfulTotal\",\"$date\",\"$verified\",\"$userId\",\"$profileUrl\",\"$userName\",\"$title\",\"$review\"\n";
+			print "\"$productTitle\",\"$uniqueId\",\"$count\",\"$productId\",\"$newDate\",\"$model\",\"$size\",\"$rating\",\"$helpfulYes\",\"$helpfulTotal\",\"$date\",\"$verified\",\"$userId\",\"$profileUrl\",\"$userName\",\"$title\",\"$review\"\n";
 		}
 
 		++$count;
